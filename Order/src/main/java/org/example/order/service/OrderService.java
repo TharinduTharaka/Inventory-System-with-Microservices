@@ -1,9 +1,7 @@
 package org.example.order.service;
 
 
-import org.example.order.common.ErrorOrderResponse;
-import org.example.order.common.OrderResponse;
-import org.example.order.common.SuccessOrderResponse;
+import org.example.inventory.dto.InventoryDTO;
 import org.example.order.dto.OrderDTO;
 import org.example.order.entity.OrderEntity;
 import org.example.order.repo.OrderRepo;
@@ -12,14 +10,15 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
 @Service
 @Transactional
 public class OrderService {
-    private final WebClient inventoryWebClient;
-    private final WebClient productWebClient;
+
+    private final WebClient webClient;
 
     @Autowired
     private OrderRepo orderRepo;
@@ -27,62 +26,34 @@ public class OrderService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public OrderService(WebClient inventoryWebClient, WebClient productWebClient, OrderRepo orderRepo, ModelMapper modelMapper) {
-        this.inventoryWebClient = inventoryWebClient;
-        this.productWebClient = productWebClient;
-        this.orderRepo = orderRepo;
-        this.modelMapper = modelMapper;
+    public OrderService(WebClient webClient) {
+        this.webClient = webClient;
     }
+
 
     public List<OrderDTO> getAllOrders() {
-        List<OrderEntity>orderList = orderRepo.findAll();
-        return modelMapper.map(orderList, new TypeToken<List<OrderDTO>>(){}.getType());
+        List<OrderEntity> orderList = orderRepo.findAll();
+        return modelMapper.map(orderList, new TypeToken<List<OrderDTO>>() {
+        }.getType());
     }
 
-    public OrderResponse saveOrder(OrderDTO OrderDTO) {
+    public OrderDTO saveOrder(OrderDTO orderDTO) {
 
-        Integer itemId = OrderDTO.getItemId();
+        Integer itemId = orderDTO.getItemId();
 
         try {
-            InventoryDTO inventoryResponse = inventoryWebClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/item/{itemId}").build(itemId))
+            InventoryDTO inventoryResponse = webClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("http://localhost:8081/api/v1/inventory/item/{itemId}").build(itemId))
                     .retrieve()
                     .bodyToMono(InventoryDTO.class)
                     .block();
 
-            assert inventoryResponse != null;
-
-            Integer productId = inventoryResponse.getProductId();
-
-            ProductDTO productResponse = productWebClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/product/{productId}").build(productId))
-                    .retrieve()
-                    .bodyToMono(ProductDTO.class)
-                    .block();
-
-            assert productResponse != null;
-
-            if (inventoryResponse.getQuantity() > 0) {
-                if (productResponse.getForSale() == 1) {
-                    orderRepo.save(modelMapper.map(OrderDTO, OrderEntity.class));
-                }
-                else {
-                    return new ErrorOrderResponse("This item is not for sale");
-                }
-                return new SuccessOrderResponse(OrderDTO);
-            }
-            else {
-                return new ErrorOrderResponse("Item not available, please try later");
-            }
+        } catch (Exception e) {
 
         }
-        catch (WebClientResponseException e) {
-            if (e.getStatusCode().is5xxServerError()) {
-                return new ErrorOrderResponse("Item not found");
-            }
-        }
 
-        return null;
+        orderRepo.save(modelMapper.map(orderDTO, OrderEntity.class));
+        return orderDTO;
     }
 
     public OrderDTO updateOrder(OrderDTO OrderDTO) {
