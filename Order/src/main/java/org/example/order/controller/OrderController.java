@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @PostMapping("/addorder")
-    public OrderDTO saveOrder(@RequestBody OrderDTO orderDTO) {
+    public OrderResponse saveOrder(@RequestBody OrderDTO orderDTO) {
         OrderEventDTO orderEventDTO = new OrderEventDTO();
         orderEventDTO.setMessage("Order is committed");
         orderEventDTO.setStatus("pending");

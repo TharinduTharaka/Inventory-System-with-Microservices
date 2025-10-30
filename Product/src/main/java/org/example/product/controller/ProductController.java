@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "api/v1/")
+@RequestMapping(value = "api/v1/product")
 public class ProductController {
     @Autowired
     private ProductService productService;
@@ -20,7 +20,7 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/{productId}")
     public ProductDTO getProductById(@PathVariable Integer productId) {
         return productService.getProductById(productId);
     }

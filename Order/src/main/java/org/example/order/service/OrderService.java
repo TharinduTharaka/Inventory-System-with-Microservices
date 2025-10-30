@@ -2,9 +2,13 @@ package org.example.order.service;
 
 
 import org.example.inventory.dto.InventoryDTO;
+import org.example.order.common.ErrorOrderResponse;
+import org.example.order.common.OrderResponse;
+import org.example.order.common.SuccessOrderResponse;
 import org.example.order.dto.OrderDTO;
 import org.example.order.entity.OrderEntity;
 import org.example.order.repo.OrderRepo;
+import org.example.product.dto.ProductDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,8 @@ import java.util.List;
 @Transactional
 public class OrderService {
 
-    private final WebClient webClient;
+    private final WebClient inventoryWebClient;
+    private final WebClient productWebClient;
 
     @Autowired
     private OrderRepo orderRepo;
@@ -26,8 +31,11 @@ public class OrderService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public OrderService(WebClient webClient) {
-        this.webClient = webClient;
+    public OrderService(WebClient inventoryWebClient, WebClient productWebClient, OrderRepo orderRepo, ModelMapper modelMapper) {
+        this.inventoryWebClient = inventoryWebClient;
+        this.productWebClient = productWebClient;
+        this.modelMapper = modelMapper;
+        this.orderRepo = orderRepo;
     }
 
 
@@ -37,23 +45,48 @@ public class OrderService {
         }.getType());
     }
 
-    public OrderDTO saveOrder(OrderDTO orderDTO) {
+    public OrderResponse saveOrder(OrderDTO orderDTO) {
 
         Integer itemId = orderDTO.getItemId();
 
         try {
-            InventoryDTO inventoryResponse = webClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("http://localhost:8081/api/v1/inventory/item/{itemId}").build(itemId))
+            InventoryDTO inventoryResponse = inventoryWebClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("/item/{itemId}").build(itemId))
                     .retrieve()
                     .bodyToMono(InventoryDTO.class)
                     .block();
+
+            assert inventoryResponse != null;
+
+            Long productId = inventoryResponse.getProductId();
+
+
+            ProductDTO productResponse = productWebClient.get()
+                    .uri(uriBuilder -> uriBuilder.path("/{productId}").build(productId))
+                    .retrieve()
+                    .bodyToMono(ProductDTO.class)
+                    .block();
+
+            assert productResponse != null;
+
+
+            if (inventoryResponse.getQuantity() > 0) {
+                if (productResponse.getForSale() == 1) {
+                    orderRepo.save(modelMapper.map(orderDTO, OrderEntity.class));
+                    return new SuccessOrderResponse(orderDTO);
+                }else {
+                    return new ErrorOrderResponse("This item is not for sale");
+                }
+
+            } else {
+                return new ErrorOrderResponse("Order failed: Item out of stock");
+            }
 
         } catch (Exception e) {
 
         }
 
-        orderRepo.save(modelMapper.map(orderDTO, OrderEntity.class));
-        return orderDTO;
+        return null;
     }
 
     public OrderDTO updateOrder(OrderDTO OrderDTO) {
