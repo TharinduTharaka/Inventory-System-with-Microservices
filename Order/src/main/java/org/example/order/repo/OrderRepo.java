@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OrderRepo extends JpaRepository<OrderEntity, Integer> {
-    @Query(value = "SELECT * FROM order WHERE id = ?1", nativeQuery = true)
-    OrderEntity getOrderById(Integer orderId);
+public interface OrderRepo extends JpaRepository<OrderEntity, Long> {
+    @Query(value = "SELECT * FROM orders WHERE id = ?1", nativeQuery = true)
+    OrderEntity getOrderById(Long orderId);
 }

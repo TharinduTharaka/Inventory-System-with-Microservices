@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "api/v1/")
+@RequestMapping(value = "api/v1/order")
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -25,8 +25,8 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    @GetMapping("/order/{orderId}")
-    public OrderDTO getOrderById(@PathVariable Integer orderId) {
+    @GetMapping("/{orderId}")
+    public OrderDTO getOrderById(@PathVariable Long orderId) {
         return orderService.getOrderById(orderId);
     }
 
@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/deleteorder/{orderId}")
-    public String deleteOrder(@PathVariable Integer orderId) {
+    public String deleteOrder(@PathVariable Long orderId) {
         return orderService.deleteOrder(orderId);
     }
 }

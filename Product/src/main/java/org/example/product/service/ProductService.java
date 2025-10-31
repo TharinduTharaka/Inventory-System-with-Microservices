@@ -40,7 +40,7 @@ public class ProductService {
         return "Product deleted";
     }
 
-    public ProductDTO getProductById(Integer productId) {
+    public ProductDTO getProductById(Long productId) {
         ProductEntity product = productRepo.getProductById(productId);
         return modelMapper.map(product, ProductDTO.class);
     }

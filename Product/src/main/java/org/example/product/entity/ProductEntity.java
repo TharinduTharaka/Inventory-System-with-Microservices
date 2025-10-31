@@ -25,7 +25,7 @@ public class ProductEntity {
     private String productName;
 
     @Column(name = "for_sale")
-    private Double forSale;
+    private Integer forSale;
 
 
 }

@@ -94,12 +94,12 @@ public class OrderService {
         return OrderDTO;
     }
 
-    public String deleteOrder(Integer orderId) {
+    public String deleteOrder(Long orderId) {
         orderRepo.deleteById(orderId);
         return "Order deleted";
     }
 
-    public OrderDTO getOrderById(Integer orderId) {
+    public OrderDTO getOrderById(Long orderId) {
         OrderEntity order = orderRepo.getOrderById(orderId);
         return modelMapper.map(order, OrderDTO.class);
     }

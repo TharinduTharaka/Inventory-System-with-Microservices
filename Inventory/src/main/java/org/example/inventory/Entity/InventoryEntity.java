@@ -20,10 +20,11 @@ public class InventoryEntity {
 
     @Column(name = "type")
     private String type;
+
     @Column(name = "item_id")
     private Long itemId;
 
-    @Column(name = "productId")
+    @Column(name = "product_id")
     private Long productId;
 
     @Column(name = "quantity")
