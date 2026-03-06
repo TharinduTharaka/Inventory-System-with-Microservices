@@ -42,21 +42,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>Inventory</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>Product</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -75,6 +64,24 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>5.2.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>Inventory</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>Product</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>base</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
     </dependencies>
