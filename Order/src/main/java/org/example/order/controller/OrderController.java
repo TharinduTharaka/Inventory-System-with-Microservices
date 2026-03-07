@@ -1,6 +1,7 @@
 package org.example.order.controller;
 
 
+import org.example.order.common.ErrorOrderResponse;
 import org.example.order.common.OrderResponse;
 import org.example.order.dto.OrderDTO;
 import com.example.base.dto.OrderEventDto;
@@ -34,12 +35,16 @@ public class OrderController {
 
     @PostMapping("/addorder")
     public OrderResponse saveOrder(@RequestBody OrderDTO orderDTO) {
-        OrderEventDto orderEventDTO = new OrderEventDto();
-        orderEventDTO.setMessage("Order is committed");
-        orderEventDTO.setStatus("pending");
-        orderProducer.sendMessage(orderEventDTO);
-
-        return orderService.saveOrder(orderDTO);
+        try {
+            OrderResponse response = orderService.saveOrder(orderDTO);
+            OrderEventDto orderEventDTO = new OrderEventDto();
+            orderEventDTO.setMessage("Order is committed");
+            orderEventDTO.setStatus("pending");
+            orderProducer.sendMessage(orderEventDTO);
+            return response;
+        } catch (Exception e) {
+            return new ErrorOrderResponse(e.getMessage());
+        }
     }
 
     @PutMapping("/updateorder")

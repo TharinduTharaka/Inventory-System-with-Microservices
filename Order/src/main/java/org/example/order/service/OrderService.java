@@ -75,18 +75,17 @@ public class OrderService {
                     orderRepo.save(modelMapper.map(orderDTO, OrderEntity.class));
                     return new SuccessOrderResponse(orderDTO);
                 }else {
-                    return new ErrorOrderResponse("This item is not for sale");
+                    throw new RuntimeException("This item is not for sale");
                 }
 
             } else {
-                return new ErrorOrderResponse("Order failed: Item out of stock");
+                throw new RuntimeException("Order failed: Item out of stock");
             }
 
         } catch (Exception e) {
+            return new ErrorOrderResponse("Error occurred while processing the order: " + e.getMessage());
 
         }
-
-        return null;
     }
 
     public OrderDTO updateOrder(OrderDTO OrderDTO) {
