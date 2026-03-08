@@ -19,6 +19,7 @@
         <module>Product</module>
         <module>base</module>
         <module>discoveryserver</module>
+        <module>apigatway</module>
     </modules>
     <properties>
         <java.version>17</java.version>
